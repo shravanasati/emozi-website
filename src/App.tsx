@@ -128,7 +128,7 @@ function App() {
           <p>it's cross platform and simple to use</p>
           <p>check it out <a href="https://github.com/shravanasati/emozi">here</a></p>
 
-          <h3 className="font-bold m-8">Installation</h3>
+          <h3 className="font-bold text-2xl m-8">Installation</h3>
           <ul>
             <InstallationTechnique technique="using eget (easiest)" command="eget shravanasati/emozi" />
             <InstallationTechnique technique="using scoop (windows) package manager" command="curl.exe https://github.com/shravanasati/emozi/releases/latest/download/emozi.json -L -o emozi.json;
