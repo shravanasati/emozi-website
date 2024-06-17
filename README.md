@@ -48,4 +48,4 @@ Once you've cloned the repository,
 
 2. `pnpm run dev` to run vite server.
 
-3. `go build` to run go binary.
+3. `go build` to run the go server. note that `pnpm run build` must be executed before starting the go server.

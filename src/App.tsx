@@ -1,5 +1,6 @@
 import { Navbar } from "./components/Navbar"
 import { Footer } from "./components/Footer"
+import { InstallationTechnique } from "./components/InstallationTechnique"
 
 function generateEmojipasta() {
   let copypasta = (document.getElementById("copypasta") as HTMLTextAreaElement)!.value
@@ -76,8 +77,19 @@ function App() {
           </button>
         </section>
 
-        <section id="cli" className="mt-16 pt-5">
-          <h1>Forgot🙈😮 to mention, we📌😄 also💯👨 have😋🌹 a CLI 😎</h1>
+        <section id="cli" className="flex flex-col justify-center items-center mt-16 pt-5">
+          <h1 className="p-4 m-2">Forgot🙈😮 to mention, we📌😄 also💯👨 have😋🌹 a CLI 😎</h1>
+          <p>it's also called emozi</p>
+          <p>it's cross platform and simple to use</p>
+          <p>check it out <a href="https://github.com/shravanasati/emozi">here</a></p>
+
+          <h3 className="font-bold m-8">Installation</h3>
+          <ul>
+            <InstallationTechnique technique="using eget (easiest)" command="eget shravanasati/emozi" />
+            <InstallationTechnique technique="using scoop (windows) package manager" command="curl.exe https://github.com/shravanasati/emozi/releases/latest/download/emozi.json -L -o emozi.json;
+scoop install ./emozi.json" />
+            <InstallationTechnique technique="using go compiler" command="go install github.com/shravanasati/emozi@latest" />
+          </ul>
         </section>
       </main>
       <Footer />
