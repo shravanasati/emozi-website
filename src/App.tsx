@@ -1,45 +1,90 @@
 import { Navbar } from "./components/Navbar"
 import { Footer } from "./components/Footer"
+import { AlertBanner } from "./components/AlertBanner"
 import { InstallationTechnique } from "./components/InstallationTechnique"
+import { useEffect, useState } from "react"
+import './App.css'
 
-function generateEmojipasta() {
-  let copypasta = (document.getElementById("copypasta") as HTMLTextAreaElement)!.value
+function ProgressBar() {
 
-  if (!copypasta) {
-    return
-    // todo show error saying add text
-  }
-
-  // todo add validation and progress bar
-  fetch("/api/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      text: copypasta,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.error) {
-        document.getElementById("emojipasta")!.textContent = `whoopsies🤭! the server🙅 is upset😡 \nerror: ${data.error}`
-      } else {
-        document.getElementById("emojipasta")!.textContent = data.emojipasta
-      }
-    })
-    .catch((error) => {
-      document.getElementById(
-        "emojipasta"
-      )!.textContent = `something went wrong 😔 \nerror: ${error}`
-    }
-    )
+  return <button
+    type="button"
+    className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 my-2"
+    disabled
+  > <span className="emoji-rotate">😶</span>
+  Please Wait...
+  </button>
 }
 
 function App() {
+  const [cols, setCols] = useState(60); // Default value
+
+  useEffect(() => {
+    const calculateCols = () => {
+      // Estimate the average width of a character in pixels. This value might need adjustment.
+      const averageCharWidth = 8; // This is an estimated value; adjust based on your font and styling
+      const screenWidth = window.innerWidth;
+      const desiredWidth = screenWidth * 0.4; // 60% of the screen width
+      const newCols = Math.floor(desiredWidth / averageCharWidth);
+
+      setCols(newCols);
+    };
+
+    // Calculate cols on mount
+    calculateCols();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', calculateCols);
+
+    // Cleanup function to remove the event listener
+    return () => window.removeEventListener('resize', calculateCols);
+  }, []);
+
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const generateEmojipasta = () => {
+    let copypasta = (document.getElementById("copypasta") as HTMLTextAreaElement)!.value
+
+    if (!copypasta) {
+      setError("please enter some text 🤐")
+      setTimeout(() => setError(""), 4000)
+      return
+    }
+
+    setLoading(true)
+
+    fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: copypasta,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          setError(`whoopsies🤭! the server🙅 is upset😡 \nerror: ${data.error}`)
+          setTimeout(() => setError(""), 5000)
+        } else {
+          document.getElementById("emojipasta")!.textContent = data.emojipasta
+        }
+      })
+      .catch((error) => {
+          setError(`something went wrong \nerror: ${error}`)
+          setTimeout(() => setError(""), 5000)
+      }
+      ).finally( () =>
+        setLoading(false)
+      )
+  }
+
   return (
     <>
       <Navbar />
+      {error && <AlertBanner alertText={error} closeFn = {() => setError("")} />}
       <main className="w-full flex flex-col justify-center items-center mt-10 pt-4">
         <section className="px-2 pb-4 mb-6 mt-0">
           <h1>
@@ -49,21 +94,21 @@ function App() {
 
         <section>
 
-          <textarea name="copypasta" id="copypasta" cols={60} rows={6} placeholder="bhwaahhaha 😈" className="resize-x p-2 m-2">
+          <textarea name="copypasta" id="copypasta" cols={cols} rows={6} placeholder="bhwaahhaha 😈" className="resize-x p-2 m-2">
           </textarea>
         </section>
         <section>
-          <button
+          {loading ? ProgressBar() : <button
             type="button"
             className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 my-2"
             onClick={generateEmojipasta}
           >
             Cook Now
-          </button>
+          </button>}
         </section>
 
         <section className="p-2 m-2">
-          <textarea name="emojipasta" id="emojipasta" placeholder="emojipasta will be served here 🍽️" readOnly rows={7} cols={60} className="resize-x p-2 m-2"></textarea>
+          <textarea name="emojipasta" id="emojipasta" placeholder="emojipasta will be served here 🍽️" readOnly rows={7} cols={cols} className="resize-x p-2 m-2"></textarea>
         </section>
         <section>
           <button
