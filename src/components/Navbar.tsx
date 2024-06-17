@@ -39,7 +39,7 @@ function DesktopMenu() {
 	)
 }
 
-function MobileMenu({ toggleMenu }) {
+function MobileMenu({ toggleMenu }: { toggleMenu: () => void }) {
 	return (
 		<div className="lg:hidden">
 			<Menu onClick={toggleMenu} className="h-6 w-6 cursor-pointer" />

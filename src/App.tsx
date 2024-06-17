@@ -2,23 +2,35 @@ import { Navbar } from "./components/Navbar"
 import { Footer } from "./components/Footer"
 
 function generateEmojipasta() {
+  let copypasta = (document.getElementById("copypasta") as HTMLTextAreaElement)!.value
+
+  if (!copypasta) {
+    return
+    // todo show error saying add text
+  }
+
+  // todo add validation and progress bar
   fetch("/api/generate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      text: document.getElementById("copypasta")?.textContent,
+      text: copypasta,
     }),
   })
     .then((response) => response.json())
     .then((data) => {
-      document.getElementById("emojipasta")!.textContent = data.emojipasta
+      if (data.error) {
+        document.getElementById("emojipasta")!.textContent = `whoopsies🤭! the server🙅 is upset😡 \nerror: ${data.error}`
+      } else {
+        document.getElementById("emojipasta")!.textContent = data.emojipasta
+      }
     })
     .catch((error) => {
       document.getElementById(
         "emojipasta"
-      )!.textContent = `whoopsies🤭! the server🙅 is upset😡 \nerror: ${error}`
+      )!.textContent = `something went wrong 😔 \nerror: ${error}`
     }
     )
 }
@@ -50,7 +62,7 @@ function App() {
         </section>
 
         <section className="p-2 m-2">
-          <textarea name="emojipasta" id="emojipasta" placeholder="emojipasta will be served here 🍽️" readOnly rows={7} cols={60} className="resize-x"></textarea>
+          <textarea name="emojipasta" id="emojipasta" placeholder="emojipasta will be served here 🍽️" readOnly rows={7} cols={60} className="resize-x p-2 m-2"></textarea>
         </section>
         <section>
           <button

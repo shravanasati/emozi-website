@@ -1,3 +1,4 @@
+<!-- 
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -28,3 +29,23 @@ export default {
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+ -->
+
+# emozi-website
+
+A modern emojipasta generator.
+
+btw we also have a [cli](https://github.com/shravanasati/emozi).
+
+
+### Development Environment Setup
+
+We'll be using pnpm for javascript dependency management.
+
+Once you've cloned the repository,
+
+1. `pnpm i` to install all the packages.
+
+2. `pnpm run dev` to run vite server.
+
+3. `go build` to run go binary.
