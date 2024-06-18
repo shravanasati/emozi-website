@@ -92,6 +92,7 @@ function App() {
     }
   }
 
+  const [isCopied, setIsCopied] = useState(false)
 
   return (
     <>
@@ -138,9 +139,11 @@ function App() {
             className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 my-2"
             onClick={async () => {
               await navigator.clipboard.writeText(document.getElementById("emojipasta")?.textContent || "")
+              setIsCopied(true)
+              setTimeout(() => setIsCopied(false), 3000)
             }}
           >
-            Copy to Clipboard
+            {isCopied ? "Copied" : "Copy to Clipboard"}
           </button>
         </section>
 
