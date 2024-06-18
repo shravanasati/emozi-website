@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/shravanasati/emozi/emojipasta"
 )
@@ -68,8 +69,13 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./dist"))
 	http.Handle("/", fs)
-	log.Println("Listening on :8080")
-	err := http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Println("Listening on :" + port)
+
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
