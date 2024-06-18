@@ -17,33 +17,46 @@ func jsonify(data any) []byte {
 	return converted
 }
 
+type GenerateRequestOptions struct {
+	EmojiDensity uint `json:"emojiDensity"`
+}
+
+type GenerateRequest struct {
+	Text    string                 `json:"text"`
+	Options GenerateRequestOptions `json:"options"`
+}
+
 func main() {
-	pastaBuilder := emojipasta.NewBuilder().WithDefaultMappings().WithMaxEmojisPerBlock(2)
-	pastaMaker, err := pastaBuilder.Build()
-	if err != nil {
-		panic(err)
-	}
+	pastaBuilder := emojipasta.NewBuilder().WithDefaultMappings()
 
 	http.HandleFunc("POST /api/generate", func(w http.ResponseWriter, r *http.Request) {
-		var data map[string]string
+		var apiRequest GenerateRequest
 		content, err := io.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(jsonify(map[string]string{"error": "cant read request body"}))
 			return
 		}
-		err = json.Unmarshal(content, &data)
+		err = json.Unmarshal(content, &apiRequest)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(jsonify(map[string]string{"error": "expected json content"}))
+			w.Write(jsonify(map[string]string{"error": "json entity doesn't match, visit docs"}))
 			return
 		}
 
-		copypasta, ok := data["text"]
-		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(jsonify(map[string]string{"error": "text field not found"}))
+		copypasta := apiRequest.Text
+		options := apiRequest.Options
+		if options.EmojiDensity == 0 {
+			w.WriteHeader(http.StatusOK)
+			w.Write(jsonify(map[string]string{
+				"emojipasta": apiRequest.Text,
+			}))
 			return
+		}
+
+		pastaMaker, err := pastaBuilder.WithMaxEmojisPerBlock(min(5, int(options.EmojiDensity))).Build()
+		if err != nil {
+			panic(err)
 		}
 
 		dish := pastaMaker.GenerateEmojiPasta(copypasta)
@@ -56,7 +69,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./dist"))
 	http.Handle("/", fs)
 	log.Println("Listening on :8080")
-	err = http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

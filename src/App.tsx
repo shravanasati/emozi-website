@@ -12,19 +12,19 @@ function ProgressBar() {
     className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 my-2"
     disabled
   > <span className="emoji-rotate">😶</span>
-  Please Wait...
+    Cooking... <span className="emoji-rotate">🤠</span>
   </button>
 }
 
 function App() {
-  const [cols, setCols] = useState(60); // Default value
+  const [cols, setCols] = useState(60);
 
   useEffect(() => {
     const calculateCols = () => {
       // Estimate the average width of a character in pixels. This value might need adjustment.
       const averageCharWidth = 8; // This is an estimated value; adjust based on your font and styling
       const screenWidth = window.innerWidth;
-      const desiredWidth = screenWidth * 0.4; // 60% of the screen width
+      const desiredWidth = screenWidth * 0.4; // 40% of the screen width
       const newCols = Math.floor(desiredWidth / averageCharWidth);
 
       setCols(newCols);
@@ -43,49 +43,61 @@ function App() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const generateEmojipasta = () => {
+  const sliderEmojiArray = ["😊", "🤠", "😂", "😈", "💩"]
+  const [sliderValue, setSliderValue] = useState(2)
+  const [sliderEmoji, setSliderEmoji] = useState(sliderEmojiArray[1])
+  useEffect(() => {
+    // change slider emoji based on slider value
+    const index = sliderValue - 1;
+    setSliderEmoji(sliderEmojiArray[index])
+  }, [sliderValue])
+
+
+  const generateEmojipasta = async () => {
     let copypasta = (document.getElementById("copypasta") as HTMLTextAreaElement)!.value
 
     if (!copypasta) {
-      setError("please enter some text 🤐")
+      setError("bro atleast yap something 🤐")
       setTimeout(() => setError(""), 4000)
       return
     }
 
     setLoading(true)
 
-    fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text: copypasta,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          setError(`whoopsies🤭! the server🙅 is upset😡 \nerror: ${data.error}`)
-          setTimeout(() => setError(""), 5000)
-        } else {
-          document.getElementById("emojipasta")!.textContent = data.emojipasta
-        }
-      })
-      .catch((error) => {
-          setError(`something went wrong \nerror: ${error}`)
-          setTimeout(() => setError(""), 5000)
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: copypasta,
+          options: {
+            emojiDensity: sliderValue
+          }
+        }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        setError(`whoopsies🤭! the server🙅 is upset😡 \nerror: ${data.error}`);
+        setTimeout(() => setError(""), 5000);
+      } else {
+        document.getElementById("emojipasta")!.textContent = data.emojipasta;
       }
-      ).finally( () =>
-        setLoading(false)
-      )
+    } catch (error) {
+      setError(`something went wrong 😥 \nerror: ${error}`);
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setLoading(false);
+    }
   }
+
 
   return (
     <>
       <Navbar />
-      {error && <AlertBanner alertText={error} closeFn = {() => setError("")} />}
-      <main className="w-full flex flex-col justify-center items-center mt-10 pt-4">
+      {error && <AlertBanner alertText={error} closeFn={() => setError("")} />}
+      <main className="w-full flex flex-col justify-center items-center mt-8 pt-4">
         <section className="px-2 pb-4 mb-6 mt-0">
           <h1>
             Mhmm 😋🗿, have👊🏋 some⛄📜 delicious👌🍰 emojipasta 🤩🚀
@@ -97,11 +109,21 @@ function App() {
           <textarea name="copypasta" id="copypasta" cols={cols} rows={6} placeholder="bhwaahhaha 😈" className="resize-x p-2 m-2">
           </textarea>
         </section>
+
+        <section className="p-4">
+          <label htmlFor="slider" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Emoji Density:</label>
+
+          <input type="range" id="slider" name="slider" min={1} max={5} value={sliderValue} className="h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+            onChange={(ev) => {
+              setSliderValue(parseInt(ev.target.value, 10));
+            }} /> <span>{sliderEmoji}</span>
+        </section>
+
         <section>
           {loading ? ProgressBar() : <button
             type="button"
             className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 my-2"
-            onClick={generateEmojipasta}
+            onClick={async () => await generateEmojipasta()}
           >
             Cook Now
           </button>}
