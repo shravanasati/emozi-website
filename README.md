@@ -63,7 +63,7 @@ docker run yourname/emozi-website -p 8080:8080
 
 ### API Usage
 
-Base URL: `https://seal-app-ubi38.ondigitalocean.app`
+Base URL: `https://coral-app-b9pj6.ondigitalocean.app/`
 
 The only API endpoint is `POST /api/generate`.
 
