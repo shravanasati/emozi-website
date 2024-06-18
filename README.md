@@ -49,3 +49,50 @@ Once you've cloned the repository,
 2. `pnpm run dev` to run vite server.
 
 3. `go build` to run the go server. note that `pnpm run build` must be executed before starting the go server.
+
+#### Using Docker
+
+```
+docker build -t yourname/emozi-website[:optionalVersionTag] .
+```
+
+and 
+```
+docker run yourname/emozi-website -p 8080:8080
+```
+
+### API Usage
+
+Base URL: `https://seal-app-ubi38.ondigitalocean.app`
+
+The only API endpoint is `POST /api/generate`.
+
+The JSON payload that needs to be sent is
+
+```json
+{
+  "text": "this copypasta would be converted into emojipasta",
+  "options": {
+    "emojiDensity": 2
+  }
+}
+```
+
+Note that the `options` field must be passed with the `emojiDensity` parameter because otherwise the default would be 0.
+
+`emojiDensity` must be between 0 and 5, inclusive both.
+
+The response would be one of the following:
+```json
+{
+  "emojipasta": "this copypasta🍝 would👪💀 be😱 converted into😩 emojipasta😍"
+}
+```
+
+If the request is not successfull,
+
+```json
+{
+  "error": "the json entity doesn't match, visit docs"
+}
+```
