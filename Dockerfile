@@ -6,10 +6,6 @@ RUN corepack enable
 COPY . /app
 WORKDIR /app
 
-# Install production dependencies
-FROM base AS prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
-
 # Build the frontend
 FROM base AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
@@ -26,7 +22,6 @@ RUN go build -o server .
 # Final stage: Copy the frontend and Go server into a new image
 FROM alpine
 WORKDIR /app
-COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=server-build /server/server ./server
 ENV PORT=8080
