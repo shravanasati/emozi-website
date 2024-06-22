@@ -2,7 +2,7 @@ import { Navbar } from "./components/Navbar"
 import { Footer } from "./components/Footer"
 import { AlertBanner } from "./components/AlertBanner"
 import { InstallationTechnique } from "./components/InstallationTechnique"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import './App.css'
 
 function ProgressBar() {
@@ -52,9 +52,15 @@ function App() {
     setSliderEmoji(sliderEmojiArray[index])
   }, [sliderValue])
 
+  const [emojipasta, setEmojipasta] = useState("")
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  useEffect(() => {
+    // focus on input field
+    inputRef.current?.focus()
+  }, [])
 
   const generateEmojipasta = async () => {
-    let copypasta = (document.getElementById("copypasta") as HTMLTextAreaElement)!.value
+    let copypasta = (inputRef.current as HTMLTextAreaElement).value
 
     if (!copypasta) {
       setError("bro atleast yap something 🤐")
@@ -82,7 +88,7 @@ function App() {
         setError(`whoopsies🤭! the server🙅 is upset😡 \nerror: ${data.error}`);
         setTimeout(() => setError(""), 5000);
       } else {
-        document.getElementById("emojipasta")!.textContent = data.emojipasta;
+        setEmojipasta(data.emojipasta);
       }
     } catch (error) {
       setError(`something went wrong 😥 \nerror: ${error}`);
@@ -107,7 +113,7 @@ function App() {
 
         <section>
 
-          <textarea name="copypasta" id="copypasta" cols={cols} rows={6} placeholder="bhwaahhaha 😈" className="resize-x p-2 m-2">
+          <textarea name="copypasta" id="copypasta" cols={cols} rows={6} placeholder="bhwaahhaha 😈" className="resize-x p-2 m-2" ref={inputRef}>
           </textarea>
         </section>
 
@@ -131,14 +137,14 @@ function App() {
         </section>
 
         <section className="p-2 m-2">
-          <textarea name="emojipasta" id="emojipasta" placeholder="emojipasta will be served here 🍽️" readOnly rows={7} cols={cols} className="resize-x p-2 m-2"></textarea>
+          <textarea name="emojipasta" id="emojipasta" placeholder="emojipasta will be served here 🍽️" readOnly rows={7} cols={cols} className="resize-x p-2 m-2" value={emojipasta}></textarea>
         </section>
         <section>
           <button
             type="button"
             className="rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 my-2"
             onClick={async () => {
-              await navigator.clipboard.writeText(document.getElementById("emojipasta")?.textContent || "")
+              await navigator.clipboard.writeText(emojipasta)
               setIsCopied(true)
               setTimeout(() => setIsCopied(false), 3000)
             }}
